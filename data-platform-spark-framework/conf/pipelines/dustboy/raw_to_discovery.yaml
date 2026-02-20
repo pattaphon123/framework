@@ -1,0 +1,143 @@
+description: Ingest raw Dustboy data into the discovery zone.
+source:
+  type: gcs
+  format: json
+  path: gs://${env.storage.raw_bucket}/dustboy.json
+  options:
+    multiLine: true
+target:
+  catalog: ${env.biglake.catalog}
+  schema: discovery
+  table: dustboy
+  location: gs://${env.storage.discovery_bucket}/dustboy
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+  - name: load_timestamp
+  columns:
+  - name: id
+    type: string
+  - name: dustboy_id
+    type: string
+  - name: dustboy_project
+    type: string
+  - name: dustboy_uri
+    type: string
+  - name: dustboy_name
+    type: string
+  - name: dustboy_name_en
+    type: string
+  - name: dustboy_lat
+    type: string
+  - name: dustboy_lon
+    type: string
+  - name: pm10
+    type: string
+  - name: pm25
+    type: string
+  - name: wind_speed
+    type: string
+  - name: wind_direction
+    type: string
+  - name: atmospheric
+    type: string
+  - name: pm10_th_aqi
+    type: string
+  - name: pm10_us_aqi
+    type: string
+  - name: pm25_th_aqi
+    type: string
+  - name: pm25_us_aqi
+    type: string
+  - name: temp
+    type: string
+  - name: humid
+    type: string
+  - name: us_aqi
+    type: string
+  - name: us_color
+    type: string
+  - name: us_dustboy_icon
+    type: string
+  - name: us_title
+    type: string
+  - name: us_title_en
+    type: string
+  - name: us_caption
+    type: string
+  - name: us_caption_en
+    type: string
+  - name: th_aqi
+    type: string
+  - name: th_color
+    type: string
+  - name: th_dustboy_icon
+    type: string
+  - name: th_title
+    type: string
+  - name: th_title_en
+    type: string
+  - name: th_caption
+    type: string
+  - name: th_caption_en
+    type: string
+  - name: daily_pm10
+    type: string
+  - name: daily_pm10_th_aqi
+    type: string
+  - name: daily_pm10_us_aqi
+    type: string
+  - name: daily_pm25
+    type: string
+  - name: daily_pm25_th_aqi
+    type: string
+  - name: daily_pm25_us_aqi
+    type: string
+  - name: daily_th_title
+    type: string
+  - name: daily_th_title_en
+    type: string
+  - name: daily_us_title
+    type: string
+  - name: daily_us_title_en
+    type: string
+  - name: daily_th_caption
+    type: string
+  - name: daily_th_caption_en
+    type: string
+  - name: daily_us_caption
+    type: string
+  - name: daily_us_caption_en
+    type: string
+  - name: daily_th_color
+    type: string
+  - name: daily_us_color
+    type: string
+  - name: daily_th_dustboy_icon
+    type: string
+  - name: daily_us_dustboy_icon
+    type: string
+  - name: daily_temp
+    type: string
+  - name: daily_humid
+    type: string
+  - name: daily_wind_speed
+    type: string
+  - name: daily_wind_direction
+    type: string
+  - name: daily_atmospheric
+    type: string
+  - name: province_id
+    type: string
+  - name: log_datetime
+    type: string
+  quality_checks:
+  - type: not_null
+    column: id
+    on_fail: FAIL
+  - type: not_null
+    column: dustboy_id
+    on_fail: WARN

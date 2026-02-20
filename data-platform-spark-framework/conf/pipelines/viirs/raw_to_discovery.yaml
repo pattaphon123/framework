@@ -1,0 +1,233 @@
+pipeline_name: viirs
+schedule: 0 3 * * *
+description: Ingest all fields from raw VIIRS hotspot data (GeoJSON) into the discovery zone.
+source:
+  type: gcs
+  format: geojson
+  path: gs://${env.storage.raw_bucket}/viirs/{{ ds_nodash }}
+  options:
+    multiLine : true
+
+target:
+  catalog: ${env.biglake.catalog}
+  schema: discovery__nasa
+  table: viirs
+  description: Raw VIIRS hotspot data with all columns preserved.
+  location: gs://${env.storage.discovery_bucket}/viirs
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+    description: Partition date
+  - name: load_timestamp
+    description: Load timestamp
+  columns:
+  # --- Geometry & Identifiers ---
+  - name: geometry
+    source_column: geometry
+    type: string
+    description: Geometry in WKT format (Point)
+  - name: feature_id
+    source_column: feature_id
+    type: string
+    description: Root feature ID
+
+  # --- System Metadata ---
+  - name: _createdAt
+    source_column: _createdAt
+    type: string
+  - name: _createdBy
+    source_column: _createdBy
+    type: string
+  - name: _id
+    source_column: _id
+    type: string
+  - name: _updatedAt
+    source_column: _updatedAt
+    type: string
+  - name: _updatedBy
+    source_column: _updatedBy
+    type: string
+
+  # --- Acquisition Data ---
+  - name: acq_date
+    source_column: acq_date
+    type: string
+  - name: acq_time
+    source_column: acq_time
+    type: string
+  - name: timestamp
+    source_column: timestamp
+    type: string
+  - name: th_date
+    source_column: th_date
+    type: string
+  - name: th_time
+    source_column: th_time
+    type: string
+  - name: hotspotid
+    source_column: hotspotid
+    type: string
+  - name: file_name
+    source_column: file_name
+    type: string
+
+  # --- Measurements ---
+  - name: latitude
+    source_column: latitude
+    type: string
+  - name: longitude
+    source_column: longitude
+    type: string
+  - name: bright_ti4
+    source_column: bright_ti4
+    type: string
+  - name: bright_ti5
+    source_column: bright_ti5
+    type: string
+  - name: frp
+    source_column: frp
+    type: string
+  - name: confidence
+    source_column: confidence
+    type: string
+  - name: scan
+    source_column: scan
+    type: string
+  - name: track
+    source_column: track
+    type: string
+  - name: instrument
+    source_column: instrument
+    type: string
+  - name: satellite
+    source_column: satellite
+    type: string
+  - name: version
+    source_column: version
+    type: string
+
+  # --- Administrative & Location ---
+  - name: ct_en
+    source_column: ct_en
+    type: string
+  - name: ct_tn
+    source_column: ct_tn
+    type: string
+  - name: amphoe
+    source_column: amphoe
+    type: string
+  - name: amphoe_t
+    source_column: amphoe_t
+    type: string
+  - name: ap_code
+    source_column: ap_code
+    type: string
+  - name: ap_en
+    source_column: ap_en
+    type: string
+  - name: ap_idn
+    source_column: ap_idn
+    type: string
+  - name: ap_tn
+    source_column: ap_tn
+    type: string
+  - name: changwat
+    source_column: changwat
+    type: string
+  - name: province_t
+    source_column: province_t
+    type: string
+  - name: pv_code
+    source_column: pv_code
+    type: string
+  - name: pv_en
+    source_column: pv_en
+    type: string
+  - name: pv_idn
+    source_column: pv_idn
+    type: string
+  - name: pv_tn
+    source_column: pv_tn
+    type: string
+  - name: tambol
+    source_column: tambol
+    type: string
+  - name: tambon_t
+    source_column: tambon_t
+    type: string
+  - name: tb_code
+    source_column: tb_code
+    type: string
+  - name: tb_en
+    source_column: tb_en
+    type: string
+  - name: tb_idn
+    source_column: tb_idn
+    type: string
+  - name: tb_tn
+    source_column: tb_tn
+    type: string
+  - name: village
+    source_column: village
+    type: string
+  - name: moo_1
+    source_column: moo_1
+    type: string
+  - name: name_1
+    source_column: name_1
+    type: string
+  - name: linkgmap
+    source_column: linkgmap
+    type: string
+  - name: re_nesdb
+    source_column: re_nesdb
+    type: string
+  - name: re_royin
+    source_column: re_royin
+    type: string
+
+  # --- Other Properties ---
+  - name: f_alarm
+    source_column: f_alarm
+    type: string
+  - name: lu_code
+    source_column: lu_code
+    type: string
+  - name: lu_hp
+    source_column: lu_hp
+    type: string
+  - name: lu_hp_name
+    source_column: lu_hp_name
+    type: string
+  - name: lu_name
+    source_column: lu_name
+    type: string
+  - name: utm_e
+    source_column: utm_e
+    type: string
+  - name: utm_n
+    source_column: utm_n
+    type: string
+  - name: utm_zone
+    source_column: utm_zone
+    type: string
+  - name: v_angle
+    source_column: v_angle
+    type: string
+  - name: v_direct
+    source_column: v_direct
+    type: string
+  - name: v_dist
+    source_column: v_dist
+    type: string
+
+  quality_checks:
+  - type: not_null
+    column: geometry
+    on_fail: FAIL
+  - type: not_null
+    column: hotspotid
+    on_fail: FAIL

@@ -1,0 +1,4 @@
+INSERT OVERWRITE {{ target_table }}
+SELECT
+    {{ all_columns | join(',\n    ') }}
+FROM {{ source_table }}

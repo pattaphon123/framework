@@ -1,0 +1,157 @@
+description: Ingest raw VIIRS GeoJSON data into the discovery zone.
+source:
+  type: gcs
+  format: geojson
+  path: gs://${env.storage.raw_bucket}/viirs.json
+  options:
+    multiLine: true
+target:
+  catalog: ${env.biglake.catalog}
+  schema: discovery
+  table: viirs_geojson
+  location: gs://${env.storage.discovery_bucket}/viirs_geojson
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+  - name: load_timestamp
+  columns:
+  - name: feature_id
+    type: string
+  - name: geometry
+    type: string
+  - name: acq_date
+    type: string
+  - name: acq_time
+    type: string
+  - name: th_date
+    type: string
+  - name: th_time
+    type: string
+  - name: bright_ti4
+    type: string
+  - name: bright_ti5
+    type: string
+  - name: frp
+    type: string
+  - name: confidence
+    type: string
+  - name: instrument
+    type: string
+  - name: satellite
+    type: string
+  - name: hotspotid
+    type: string
+  - name: file_name
+    type: string
+  - name: scan
+    type: string
+  - name: track
+    type: string
+  - name: version
+    type: string
+  - name: timestamp
+    type: string
+  - name: f_alarm
+    type: string
+  - name: v_angle
+    type: string
+  - name: v_direct
+    type: string
+  - name: v_dist
+    type: string
+  - name: latitude
+    type: string
+  - name: longitude
+    type: string
+  - name: utm_e
+    type: string
+  - name: utm_n
+    type: string
+  - name: utm_zone
+    type: string
+  - name: ct_en
+    type: string
+  - name: ct_tn
+    type: string
+  - name: changwat
+    type: string
+  - name: pv_code
+    type: string
+  - name: pv_en
+    type: string
+  - name: pv_idn
+    type: string
+  - name: pv_tn
+    type: string
+  - name: province_t
+    type: string
+  - name: amphoe
+    type: string
+  - name: amphoe_t
+    type: string
+  - name: ap_code
+    type: string
+  - name: ap_en
+    type: string
+  - name: ap_idn
+    type: string
+  - name: ap_tn
+    type: string
+  - name: tambol
+    type: string
+  - name: tambon_t
+    type: string
+  - name: tb_code
+    type: string
+  - name: tb_en
+    type: string
+  - name: tb_idn
+    type: string
+  - name: tb_tn
+    type: string
+  - name: village
+    type: string
+  - name: moo_1
+    type: string
+  - name: name_1
+    type: string
+  - name: lu_code
+    type: string
+  - name: lu_hp
+    type: string
+  - name: lu_hp_name
+    type: string
+  - name: lu_name
+    type: string
+  - name: re_nesdb
+    type: string
+  - name: re_royin
+    type: string
+  - name: linkgmap
+    type: string
+  - name: _id
+    type: string
+  - name: _createdAt
+    type: string
+  - name: _createdBy
+    type: string
+  - name: _updatedAt
+    type: string
+  - name: _updatedBy
+    type: string
+  quality_checks:
+  - type: not_null
+    column: feature_id
+    on_fail: FAIL
+  - type: not_null
+    column: geometry
+    on_fail: FAIL
+  - type: not_null
+    column: acq_date
+    on_fail: WARN
+  - type: not_null
+    column: hotspotid
+    on_fail: WARN

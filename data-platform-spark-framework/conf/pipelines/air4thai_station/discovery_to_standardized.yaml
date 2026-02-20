@@ -1,0 +1,84 @@
+pipeline_name: air4thai_station
+description: Cleanse and standardize Air4Thai station data.
+source:
+  catalog: ${env.biglake.catalog}
+  schema: discovery__pcd
+  table: air4thai_station
+  type: iceberg
+target:
+  catalog: ${env.gcp.project_id}
+  schema: standardized__pcd
+  table: air4thai_station
+  description: Standardized Air4Thai station master list
+  table_type: bigquery
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+    bigquery_type: DATE
+  - name: load_timestamp
+    bigquery_type: TIMESTAMP
+  columns:
+  - name: ID
+    source_column: ID
+    type: string
+    bigquery_type: STRING
+    transformations:
+    - type: trim
+
+  - name: Name
+    source_column: Name
+    type: string
+    bigquery_type: STRING
+    transformations:
+    - type: trim
+
+  - name: NameEn
+    source_column: NameEn
+    type: string
+    bigquery_type: STRING
+    transformations:
+    - type: trim
+
+  - name: Area
+    source_column: Area
+    type: string
+    bigquery_type: STRING
+    transformations:
+    - type: trim
+
+  - name: AreaEn
+    source_column: AreaEn
+    type: string
+    bigquery_type: STRING
+    transformations:
+    - type: trim
+
+  - name: OpenDate
+    source_column: OpenDate
+    type: date
+    bigquery_type: DATE
+    transformations:
+    # จัดการค่า 0000-00-00 ให้เป็น NULL เพื่อไม่ให้ error ตอนเข้า Date
+    - type: regexp_replace
+      pattern: '0000-00-00'
+      replacement: ''
+    - type: to_date
+      format: 'yyyy-MM-dd'
+
+  - name: CloseDate
+    source_column: CloseDate
+    type: date
+    bigquery_type: DATE
+    transformations:
+    - type: regexp_replace
+      pattern: '0000-00-00'
+      replacement: ''
+    - type: to_date
+      format: 'yyyy-MM-dd'
+
+  quality_checks:
+  - type: not_null
+    column: ID
+    on_fail: FAIL

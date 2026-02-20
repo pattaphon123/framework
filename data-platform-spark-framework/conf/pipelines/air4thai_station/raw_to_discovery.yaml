@@ -1,0 +1,44 @@
+pipeline_name: air4thai_station
+schedule: 0 2 * * *
+description: Ingest Air4Thai station master data into the discovery zone.
+source:
+  type: gcs
+  format: json
+  path: gs://${env.storage.raw_bucket}/pcd/air4thai_station/{{ ds_nodash }}
+  options:
+    multiLine: true
+target:
+  catalog: ${env.biglake.catalog}
+  schema: discovery__pcd
+  table: air4thai_station
+  description: Raw Air4Thai station metadata
+  location: gs://${env.storage.discovery_bucket}/pcd/air4thai_station
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+    description: Partition date
+  - name: load_timestamp
+    description: Load timestamp
+  columns:
+  # คงชื่อคอลัมน์ตามไฟล์ต้นฉบับ (ID, Name, NameEn, etc.)
+  - name: ID
+    type: string
+  - name: Name
+    type: string
+  - name: NameEn
+    type: string
+  - name: Area
+    type: string
+  - name: AreaEn
+    type: string
+  - name: OpenDate
+    type: string
+  - name: CloseDate
+    type: string
+  quality_checks:
+  - type: not_null
+    column: ID
+    on_fail: FAIL

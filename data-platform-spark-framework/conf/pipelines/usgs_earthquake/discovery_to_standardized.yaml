@@ -1,0 +1,219 @@
+pipeline_name: usgs_earthquake
+description: Standardize all USGS earthquake data fields.
+
+source:
+  type: iceberg
+  catalog: ${env.biglake.catalog}
+  schema: discovery
+  table: usgs_earthquake
+
+target:
+  catalog: ${env.gcp.project_id}
+  schema: standardized
+  table: usgs_earthquake
+  description: Standardized global earthquake data with full field history
+  table_type: bigquery
+  load_type: partition_overwrite
+  partition_columns:
+    - data_date
+  technical_columns:
+    - name: data_date
+      bigquery_type: DATE
+      description: Partition date
+    - name: load_timestamp
+      bigquery_type: TIMESTAMP
+      description: Load timestamp
+  columns:
+    # --- Identity & Geometry ---
+    - name: event_id
+      source_column: id
+      type: string
+      bigquery_type: STRING
+      description: Unique event identifier
+      transformations:
+        - type: trim
+
+    - name: geometry
+      source_column: geometry
+      type: binary
+      bigquery_type: GEOGRAPHY
+      description: Point geometry of the earthquake
+      transformations:
+        - type: to_wkb
+
+    # --- Main Event Properties ---
+    - name: magnitude
+      source_column: mag
+      type: double
+      bigquery_type: FLOAT64
+      description: Earthquake magnitude
+
+    - name: place
+      source_column: place
+      type: string
+      bigquery_type: STRING
+      description: Location description
+      transformations:
+        - type: trim
+
+    - name: time_epoch_ms
+      source_column: time
+      type: long
+      bigquery_type: INT64
+      description: Event time in epoch milliseconds
+
+    - name: updated_epoch_ms
+      source_column: updated
+      type: long
+      bigquery_type: INT64
+      description: Last update time in epoch milliseconds
+
+    - name: timezone_offset
+      source_column: tz
+      type: integer
+      bigquery_type: INT64
+      description: Timezone offset in minutes
+
+    - name: url
+      source_column: url
+      type: string
+      bigquery_type: STRING
+      description: Link to USGS event page
+
+    - name: detail_url
+      source_column: detail
+      type: string
+      bigquery_type: STRING
+      description: Link to detailed GeoJSON feed
+
+    # --- Intensity & Impact ---
+    - name: felt_reports
+      source_column: felt
+      type: integer
+      bigquery_type: INT64
+      description: Number of felt reports
+
+    - name: cdi
+      source_column: cdi
+      type: double
+      bigquery_type: FLOAT64
+      description: Community Internet Intensity Map (CIIM) intensity
+
+    - name: mmi
+      source_column: mmi
+      type: double
+      bigquery_type: FLOAT64
+      description: Modified Mercalli Intensity
+
+    - name: alert_level
+      source_column: alert
+      type: string
+      bigquery_type: STRING
+      description: Alert level (green, yellow, orange, red)
+
+    - name: status
+      source_column: status
+      type: string
+      bigquery_type: STRING
+      description: Event status (automatic vs reviewed)
+      transformations:
+        - type: lower
+        - type: trim
+
+    - name: tsunami_flag
+      source_column: tsunami
+      type: integer
+      bigquery_type: INT64
+      description: 1 if tsunami warning issued, 0 otherwise
+
+    - name: significance
+      source_column: sig
+      type: integer
+      bigquery_type: INT64
+      description: Significance score (0-1000)
+
+    # --- System & Source Info ---
+    - name: network_code
+      source_column: net
+      type: string
+      bigquery_type: STRING
+      description: ID of data contributor
+
+    - name: code
+      source_column: code
+      type: string
+      bigquery_type: STRING
+      description: Identifying code
+
+    - name: associated_ids
+      source_column: ids
+      type: string
+      bigquery_type: STRING
+      description: List of event IDs associated with this event
+
+    - name: source_networks
+      source_column: sources
+      type: string
+      bigquery_type: STRING
+      description: List of network codes
+
+    - name: product_types
+      source_column: types
+      type: string
+      bigquery_type: STRING
+      description: List of product types
+
+    # --- Technical Parameters ---
+    - name: nst
+      source_column: nst
+      type: integer
+      bigquery_type: INT64
+      description: Number of stations used
+
+    - name: distance_min
+      source_column: dmin
+      type: double
+      bigquery_type: FLOAT64
+      description: Horizontal distance to closest station (degrees)
+
+    - name: rms
+      source_column: rms
+      type: double
+      bigquery_type: FLOAT64
+      description: Root Mean Square travel time residual
+
+    - name: azimuthal_gap
+      source_column: gap
+      type: double
+      bigquery_type: FLOAT64
+      description: Horizontal azimuthal gap (degrees)
+
+    - name: magnitude_type
+      source_column: magType
+      type: string
+      bigquery_type: STRING
+      description: Method used to calculate magnitude (e.g., ml, mb)
+
+    - name: event_type
+      source_column: type
+      type: string
+      bigquery_type: STRING
+      description: Type of seismic event
+      transformations:
+        - type: lower
+
+    - name: title
+      source_column: title
+      type: string
+      bigquery_type: STRING
+      description: Full event title
+
+  quality_checks:
+    - type: not_null
+      column: event_id
+      on_fail: FAIL
+    - type: value_in_range
+      column: magnitude
+      min_value: -2.0
+      max_value: 12.0
+      on_fail: WARN

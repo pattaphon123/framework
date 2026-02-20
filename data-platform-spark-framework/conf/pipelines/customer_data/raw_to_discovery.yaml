@@ -1,0 +1,42 @@
+description: Ingest raw customer data into the discovery zone.
+source:
+  type: gcs
+  format: csv
+  path: gs://${env.storage.raw_bucket}/sample_customer_data.csv
+  options:
+    header: true
+    inferSchema: false
+target:
+  catalog: ${env.biglake.catalog}
+  schema: discovery
+  table: customers
+  location: gs://${env.storage.discovery_bucket}/customers
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+  - name: load_timestamp
+  columns:
+  - name: cust_id
+    type: string
+  - name: f_name
+    type: string
+  - name: l_name
+    type: string
+  - name: email_addr
+    type: string
+  - name: reg_ts
+    type: string
+  quality_checks:
+  - type: not_null
+    column: cust_id
+    on_fail: FAIL
+  - type: unique
+    columns:
+      - cust_id
+    on_fail: FAIL
+  - type: not_null
+    column: email_addr
+    on_fail: WARN

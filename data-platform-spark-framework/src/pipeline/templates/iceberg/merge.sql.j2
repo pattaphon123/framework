@@ -1,0 +1,23 @@
+MERGE INTO {{ target_table }} AS target
+USING {{ source_table }} AS source
+ON
+{%- for key in merge_keys %}
+    target.{{ key }} = source.{{ key }}{% if not loop.last %} AND{% endif %}
+{%- endfor %}
+WHEN MATCHED THEN
+    UPDATE SET
+{%- for col in update_columns %}
+        {{ col }} = source.{{ col }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+WHEN NOT MATCHED THEN
+    INSERT (
+{%- for col in columns %}
+        {{ col }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    )
+    VALUES (
+{%- for col in columns %}
+        source.{{ col }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+    )
+

@@ -1,0 +1,682 @@
+
+source:
+  catalog: '${env.biglake.catalog}'
+  schema: 'discovery'
+  table: 'dpmaalert'
+
+target:
+  catalog: '${env.gcp.project_id}'
+  schema: 'standardized'
+  table: 'dpmaalert'
+  table_type: 'bigquery'
+  load_type: 'merge'
+  merge_keys:
+    - 'airQualityDataHourly_stationId'
+    - 'airQualityDataHourly_time'
+  partition_columns:
+    - 'data_date'
+  technical_columns:
+    - name: 'data_date'
+      bigquery_type: 'DATE'
+    - name: 'load_timestamp'
+      bigquery_type: 'TIMESTAMP'
+  columns:
+    - name: 'airQualityDataHourly_stationId'
+      source_column: 'airQualityDataHourly_stationId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'airQualityDataHourly_time'
+      source_column: 'airQualityDataHourly_time'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'airQualityDataHourly_pM25'
+      source_column: 'airQualityDataHourly_pM25'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'airQualityDataHourly_pM10'
+      source_column: 'airQualityDataHourly_pM10'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'airQualityDataHourly_pM1'
+      source_column: 'airQualityDataHourly_pM1'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'airQualityDataHourly_o3'
+      source_column: 'airQualityDataHourly_o3'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'airQualityDataHourly_nO2'
+      source_column: 'airQualityDataHourly_nO2'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'airQualityDataHourly_ox'
+      source_column: 'airQualityDataHourly_ox'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'airQualityDataHourly_tsp'
+      source_column: 'airQualityDataHourly_tsp'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'airQualityDataHourly_temperature'
+      source_column: 'airQualityDataHourly_temperature'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'airQualityDataHourly_dewPoint'
+      source_column: 'airQualityDataHourly_dewPoint'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'airQualityDataHourly_relativeHumidity'
+      source_column: 'airQualityDataHourly_relativeHumidity'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'station_latitude'
+      source_column: 'station_latitude'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'station_longitude'
+      source_column: 'station_longitude'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'station_province_id'
+      source_column: 'station_province_id'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_province_name'
+      source_column: 'station_province_name'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    # airQualityDataHourly additional fields
+    - name: 'airQualityDataHourly_id'
+      source_column: 'airQualityDataHourly_id'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    # station additional fields
+    - name: 'station_id'
+      source_column: 'station_id'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_name'
+      source_column: 'station_name'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_location'
+      source_column: 'station_location'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_contactName'
+      source_column: 'station_contactName'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_contactPhone'
+      source_column: 'station_contactPhone'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_simCardNumber'
+      source_column: 'station_simCardNumber'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_installationEngineer'
+      source_column: 'station_installationEngineer'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_installationDate'
+      source_column: 'station_installationDate'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'station_siteAddress'
+      source_column: 'station_siteAddress'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_loggerNetReference'
+      source_column: 'station_loggerNetReference'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_image'
+      source_column: 'station_image'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_updateBy'
+      source_column: 'station_updateBy'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_updateTime'
+      source_column: 'station_updateTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'station_provinceId'
+      source_column: 'station_provinceId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_amphoeId'
+      source_column: 'station_amphoeId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_tambonId'
+      source_column: 'station_tambonId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_code'
+      source_column: 'station_code'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_displayName'
+      source_column: 'station_displayName'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_remark'
+      source_column: 'station_remark'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_amphoe'
+      source_column: 'station_amphoe'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_tambon'
+      source_column: 'station_tambon'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_isDeleted'
+      source_column: 'station_isDeleted'
+      type: 'boolean'
+      bigquery_type: 'BOOL'
+    - name: 'station_deleterId'
+      source_column: 'station_deleterId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_deletionTime'
+      source_column: 'station_deletionTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'station_lastModificationTime'
+      source_column: 'station_lastModificationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'station_lastModifierId'
+      source_column: 'station_lastModifierId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_creationTime'
+      source_column: 'station_creationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'station_creatorId'
+      source_column: 'station_creatorId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    # station_province additional fields
+    - name: 'station_province_geoCode'
+      source_column: 'station_province_geoCode'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_province_region'
+      source_column: 'station_province_region'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_province_regionId'
+      source_column: 'station_province_regionId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_province_latitude'
+      source_column: 'station_province_latitude'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'station_province_longitude'
+      source_column: 'station_province_longitude'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'station_province_nameEN'
+      source_column: 'station_province_nameEN'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_province_isDeleted'
+      source_column: 'station_province_isDeleted'
+      type: 'boolean'
+      bigquery_type: 'BOOL'
+    - name: 'station_province_deleterId'
+      source_column: 'station_province_deleterId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_province_deletionTime'
+      source_column: 'station_province_deletionTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'station_province_lastModificationTime'
+      source_column: 'station_province_lastModificationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'station_province_lastModifierId'
+      source_column: 'station_province_lastModifierId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'station_province_creationTime'
+      source_column: 'station_province_creationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'station_province_creatorId'
+      source_column: 'station_province_creatorId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    # stationDevice fields
+    - name: 'stationDevice_name'
+      source_column: 'stationDevice_name'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'stationDevice_serialNumber'
+      source_column: 'stationDevice_serialNumber'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'stationDevice_sensorType'
+      source_column: 'stationDevice_sensorType'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'stationDevice_stationId'
+      source_column: 'stationDevice_stationId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'stationDevice_simCardNumber'
+      source_column: 'stationDevice_simCardNumber'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'stationDevice_installationEngineer'
+      source_column: 'stationDevice_installationEngineer'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'stationDevice_installationDate'
+      source_column: 'stationDevice_installationDate'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'stationDevice_active'
+      source_column: 'stationDevice_active'
+      type: 'boolean'
+      bigquery_type: 'BOOL'
+    - name: 'stationDevice_isDeleted'
+      source_column: 'stationDevice_isDeleted'
+      type: 'boolean'
+      bigquery_type: 'BOOL'
+    - name: 'stationDevice_deleterId'
+      source_column: 'stationDevice_deleterId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'stationDevice_deletionTime'
+      source_column: 'stationDevice_deletionTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'stationDevice_lastModificationTime'
+      source_column: 'stationDevice_lastModificationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'stationDevice_lastModifierId'
+      source_column: 'stationDevice_lastModifierId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'stationDevice_creationTime'
+      source_column: 'stationDevice_creationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'stationDevice_creatorId'
+      source_column: 'stationDevice_creatorId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'stationDevice_id'
+      source_column: 'stationDevice_id'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    # itemStationDevice fields
+    - name: 'itemStationDevice_name'
+      source_column: 'itemStationDevice_name'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'itemStationDevice_serialNumber'
+      source_column: 'itemStationDevice_serialNumber'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'itemStationDevice_sensorType'
+      source_column: 'itemStationDevice_sensorType'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'itemStationDevice_stationId'
+      source_column: 'itemStationDevice_stationId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'itemStationDevice_simCardNumber'
+      source_column: 'itemStationDevice_simCardNumber'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'itemStationDevice_installationEngineer'
+      source_column: 'itemStationDevice_installationEngineer'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'itemStationDevice_installationDate'
+      source_column: 'itemStationDevice_installationDate'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'itemStationDevice_active'
+      source_column: 'itemStationDevice_active'
+      type: 'boolean'
+      bigquery_type: 'BOOL'
+    - name: 'itemStationDevice_isDeleted'
+      source_column: 'itemStationDevice_isDeleted'
+      type: 'boolean'
+      bigquery_type: 'BOOL'
+    - name: 'itemStationDevice_deleterId'
+      source_column: 'itemStationDevice_deleterId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'itemStationDevice_deletionTime'
+      source_column: 'itemStationDevice_deletionTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'itemStationDevice_lastModificationTime'
+      source_column: 'itemStationDevice_lastModificationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'itemStationDevice_lastModifierId'
+      source_column: 'itemStationDevice_lastModifierId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'itemStationDevice_creationTime'
+      source_column: 'itemStationDevice_creationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'itemStationDevice_creatorId'
+      source_column: 'itemStationDevice_creatorId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'itemStationDevice_id'
+      source_column: 'itemStationDevice_id'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    # province fields (at item level)
+    - name: 'province_geoCode'
+      source_column: 'province_geoCode'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'province_region'
+      source_column: 'province_region'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'province_regionId'
+      source_column: 'province_regionId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'province_latitude'
+      source_column: 'province_latitude'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'province_longitude'
+      source_column: 'province_longitude'
+      type: 'double'
+      bigquery_type: 'FLOAT64'
+    - name: 'province_nameEN'
+      source_column: 'province_nameEN'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'province_isDeleted'
+      source_column: 'province_isDeleted'
+      type: 'boolean'
+      bigquery_type: 'BOOL'
+    - name: 'province_deleterId'
+      source_column: 'province_deleterId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'province_deletionTime'
+      source_column: 'province_deletionTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'province_lastModificationTime'
+      source_column: 'province_lastModificationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'province_lastModifierId'
+      source_column: 'province_lastModifierId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'province_creationTime'
+      source_column: 'province_creationTime'
+      type: 'timestamp'
+      bigquery_type: 'TIMESTAMP'
+      transformations:
+        - type: 'to_timestamp'
+          format: "yyyy-MM-dd'T'HH:mm:ssXXX"
+          convert_buddhist_era: true
+    - name: 'province_creatorId'
+      source_column: 'province_creatorId'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'province_id'
+      source_column: 'province_id'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    # other fields
+    - name: 'stationFullname'
+      source_column: 'stationFullname'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+  quality_checks:
+    - type: 'not_null'
+      column: 'airQualityDataHourly_stationId'
+      on_fail: 'FAIL'
+    - type: 'not_null'
+      column: 'airQualityDataHourly_time'
+      on_fail: 'FAIL'
+    - type: 'value_in_range'
+      column: 'airQualityDataHourly_pM25'
+      min_value: 0
+      max_value: 1000
+      on_fail: 'WARN'
+    - type: 'value_in_range'
+      column: 'airQualityDataHourly_pM10'
+      min_value: 0
+      max_value: 1000
+      on_fail: 'WARN'
+    - type: 'value_in_range'
+      column: 'airQualityDataHourly_temperature'
+      min_value: -50
+      max_value: 60
+      on_fail: 'WARN'
+    - type: 'value_in_range'
+      column: 'airQualityDataHourly_relativeHumidity'
+      min_value: 0
+      max_value: 100
+      on_fail: 'WARN'
+

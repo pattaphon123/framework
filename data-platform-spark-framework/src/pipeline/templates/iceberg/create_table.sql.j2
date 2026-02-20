@@ -1,0 +1,24 @@
+CREATE NAMESPACE IF NOT EXISTS {{ catalog }}.{{ schema }};
+
+CREATE TABLE IF NOT EXISTS {{ catalog }}.{{ schema }}.{{ table }}
+(
+{% for column in columns %}
+    {{ column.name | ljust(20) }} {{ column.type }}{% if column.description %} COMMENT '{{ column.description }}'{% endif %}{% if not loop.last or technical_columns %},{% endif %}
+
+{% endfor %}
+{% if technical_columns %}
+{% for column in technical_columns %}
+    {{ column.name | ljust(20) }} {{ column.type }}{% if column.description %} COMMENT '{{ column.description }}'{% endif %}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+{% endif %}
+)
+USING iceberg
+{% if partition_columns %}
+PARTITIONED BY ({% for column in partition_columns %}{{ column }}{{ ", " if not loop.last else "" }}{% endfor %})
+{% endif %}
+{% if location %}
+LOCATION '{{ location }}'
+{% endif %}{% if table_description %}
+TBLPROPERTIES ('comment' = '{{ table_description }}'){% endif %};
+

@@ -1,0 +1,7 @@
+spark.sql.catalog.biglake=org.apache.iceberg.spark.SparkCatalog
+spark.sql.catalog.biglake.catalog-impl=org.apache.iceberg.gcp.bigquery.BigQueryMetastoreCatalog
+spark.sql.catalog.biglake.gcp_project=envilink-stg-data-platform
+spark.sql.catalog.biglake.gcp_location=asia-southeast1
+spark.serializer=org.apache.spark.serializer.KryoSerializer
+spark.kryo.registrator=org.apache.sedona.core.serde.SedonaKryoRegistrator
+spark.sql.extensions=org.apache.sedona.viz.sql.SedonaVizExtensions,org.apache.sedona.sql.SedonaSqlExtensions,org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions

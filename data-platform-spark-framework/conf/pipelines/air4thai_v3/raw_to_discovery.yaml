@@ -1,0 +1,87 @@
+pipeline_name: air4thai_v3
+schedule: '0 */1 * * *'
+description: 'Ingest raw Air4Thai V3 data from JSON to Discovery Zone (Keep original columns)'
+
+source:
+  type: gcs
+  format: json
+  path: 'gs://${env.storage.raw_bucket}/pcd/air4thai_v3/{{ ds_nodash }}'
+  options:
+    multiLine: true
+  transformations:
+    - type: explode
+      column: stations
+      alias: station
+    - type: explode
+      column: station.data
+      alias: measurement
+
+target:
+  catalog: '${env.biglake.catalog}'
+  schema: discovery__pcd
+  table: air4thai_v3
+  location: 'gs://${env.storage.discovery_bucket}/pcd/air4thai_v3'
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+    - data_date
+  
+  technical_columns:
+    - name: data_date
+      description: 'Partition date from file path'
+    - name: load_timestamp
+      description: 'System load timestamp'
+
+  columns:
+    - name: stationID
+      source_column: station.stationID
+      type: string
+      description: 'Station Identifier'
+    - name: DATETIMEDATA
+      source_column: measurement.DATETIMEDATA
+      type: string
+      description: 'Measurement timestamp (Raw)'
+    - name: PM25
+      source_column: measurement.PM25
+      type: string
+    - name: PM10
+      source_column: measurement.PM10
+      type: string
+    - name: O3
+      source_column: measurement.O3
+      type: string
+    - name: CO
+      source_column: measurement.CO
+      type: string
+    - name: NO2
+      source_column: measurement.NO2
+      type: string
+    - name: SO2
+      source_column: measurement.SO2
+      type: string
+    - name: WS
+      source_column: measurement.WS
+      type: string
+    - name: WD
+      source_column: measurement.WD
+      type: string
+    - name: TEMP
+      source_column: measurement.TEMP
+      type: string
+    - name: RH
+      source_column: measurement.RH
+      type: string
+    - name: BP
+      source_column: measurement.BP
+      type: string
+    - name: RAIN
+      source_column: measurement.RAIN
+      type: string
+
+  quality_checks:
+    - type: not_null
+      column: stationID
+      on_fail: FAIL
+    - type: not_null
+      column: DATETIMEDATA
+      on_fail: FAIL

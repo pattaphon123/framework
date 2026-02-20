@@ -1,0 +1,48 @@
+image: google/cloud-sdk:latest
+
+definitions:
+  steps:
+    - step: &build-and-deploy
+        name: Build and Deploy
+        caches:
+          - pip
+        script:
+          # Install required system packages
+          - apt-get update && apt-get install -y zip
+          
+          # Install uv and set up PATH
+          - curl -LsSf https://astral.sh/uv/install.sh | sh
+          - source $HOME/.local/bin/env
+          - which uv || (echo "uv not found in PATH" && exit 1)
+          
+          # Authenticate with Google Cloud
+          - echo "${GCLOUD_SERVICE_KEY}" | base64 -d > gcp-key.json
+          - gcloud auth activate-service-account --key-file=gcp-key.json
+          - gcloud config set project "${GCP_PROJECT_ID}"
+          
+          # Generate env_config.yaml
+          - make render-env
+          
+          # Build the package
+          - make build
+          
+          # Deploy artifacts to GCS
+          - make deploy CONFIG_BUCKET=${CONFIG_BUCKET}
+          
+          # Clean up sensitive files
+          - rm -f gcp-key.json
+        artifacts:
+          - dist/**
+
+pipelines:
+  branches:
+    main:
+      - step:
+          <<: *build-and-deploy
+          deployment: production
+    
+    staging:
+      - step:
+          <<: *build-and-deploy
+          deployment: staging
+

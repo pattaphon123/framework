@@ -1,0 +1,85 @@
+description: Ingest raw AirBKK data into the discovery zone.
+source:
+  type: gcs
+  format: json
+  path: gs://${env.storage.raw_bucket}/airbkk.json
+  options:
+    multiLine: true
+  transformations:
+  - type: explode_map
+    column: message
+    alias: station_key_value
+  - type: explode
+    column: station_key_value.value
+    alias: measurement
+target:
+  catalog: ${env.biglake.catalog}
+  schema: discovery
+  table: airbkk
+  location: gs://${env.storage.discovery_bucket}/airbkk
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+  - name: load_timestamp
+  columns:
+  - name: station_id
+    source_column: station_key_value.key
+    type: string
+  - name: Date_Time
+    source_column: measurement.Date_Time
+    type: string
+  - name: PM10
+    source_column: measurement.PM10
+    type: string
+  - name: PM2_5
+    source_column: measurement.`PM2.5`
+    type: string
+  - name: CO
+    source_column: measurement.CO
+    type: string
+  - name: NO2
+    source_column: measurement.NO2
+    type: string
+  - name: O3
+    source_column: measurement.O3
+    type: string
+  - name: WS
+    source_column: measurement.WS
+    type: string
+  - name: WD
+    source_column: measurement.WD
+    type: string
+  - name: Temp
+    source_column: measurement.Temp
+    type: string
+  - name: RH
+    source_column: measurement.RH
+    type: string
+  - name: BP
+    source_column: measurement.BP
+    type: string
+  - name: RAIN
+    source_column: measurement.RAIN
+    type: string
+  - name: Latitude
+    source_column: measurement.Latitude
+    type: string
+  - name: Longitude
+    source_column: measurement.Longitude
+    type: string
+  quality_checks:
+  - type: not_null
+    column: station_id
+    on_fail: FAIL
+  - type: not_null
+    column: Date_Time
+    on_fail: FAIL
+  - type: not_null
+    column: Latitude
+    on_fail: WARN
+  - type: not_null
+    column: Longitude
+    on_fail: WARN

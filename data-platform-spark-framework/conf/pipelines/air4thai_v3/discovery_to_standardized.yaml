@@ -1,0 +1,155 @@
+pipeline_name: air4thai_v3
+description: 'Cleanse and standardize Air4Thai V3 data (Keep original columns)'
+
+source:
+  catalog: '${env.biglake.catalog}'
+  schema: discovery__pcd
+  table: air4thai_v3
+  type : iceberg
+
+target:
+  catalog: '${env.gcp.project_id}'
+  schema: standardized__pcd
+  table: air4thai_v3
+  table_type: bigquery
+  load_type: partition_overwrite
+  merge_keys:
+    - stationID
+    - DATETIMEDATA
+  partition_columns:
+    - data_date
+
+  technical_columns:
+    - name: data_date
+      bigquery_type: DATE
+      description: 'Partition date for the data record'
+    - name: load_timestamp
+      bigquery_type: TIMESTAMP
+      description: 'Timestamp when the record was loaded into the table'
+
+  columns:
+    - name: stationID
+      source_column: stationID
+      type: string
+      bigquery_type: STRING
+      description: 'Station Identifier'
+      transformations:
+        - type: trim
+
+    - name: DATETIMEDATA
+      source_column: DATETIMEDATA
+      type: timestamp
+      bigquery_type: TIMESTAMP
+      description: 'Date and time when the measurement was taken'
+      transformations:
+        - type: to_timestamp
+          format: 'yyyy-MM-dd HH:mm:ss'
+
+    - name: PM25
+      source_column: PM25
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Particulate matter 2.5 micrometers or smaller in diameter (μg/m³)'
+    
+    - name: PM10
+      source_column: PM10
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Particulate matter 10 micrometers or smaller in diameter (μg/m³)'
+    
+    - name: O3
+      source_column: O3
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Ozone concentration (ppb)'
+    
+    - name: CO
+      source_column: CO
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Carbon monoxide concentration (ppm)'
+    
+    - name: NO2
+      source_column: NO2
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Nitrogen dioxide concentration (ppb)'
+    
+    - name: SO2
+      source_column: SO2
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Sulfur dioxide concentration (ppb)'
+    
+    - name: WS
+      source_column: WS
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Wind speed (m/s)'
+    
+    - name: WD
+      source_column: WD
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Wind direction in degrees (0-360)'
+    
+    - name: TEMP
+      source_column: TEMP
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Air temperature in Celsius'
+    
+    - name: RH
+      source_column: RH
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Relative humidity percentage (0-100)'
+    
+    - name: BP
+      source_column: BP
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Barometric pressure (hPa)'
+    
+    - name: RAIN
+      source_column: RAIN
+      type: double
+      bigquery_type: FLOAT64
+      description: 'Rainfall amount (mm)'
+
+  quality_checks:
+    - type: not_null
+      column: stationID
+      on_fail: FAIL
+    
+    - type: not_null
+      column: DATETIMEDATA
+      on_fail: FAIL
+      
+    # ตรวจสอบค่า PM2.5 (0-1000)
+    - type: value_in_range
+      column: PM25
+      min_value: 0
+      max_value: 1000
+      on_fail: WARN
+
+    # เพิ่มตรวจสอบค่า PM10 (0-1000)
+    - type: value_in_range
+      column: PM10
+      min_value: 0
+      max_value: 1000
+      on_fail: WARN
+
+    # เพิ่มตรวจสอบค่าอุณหภูมิ (-50 ถึง 60)
+    - type: value_in_range
+      column: TEMP
+      min_value: -50
+      max_value: 60
+      on_fail: WARN
+
+    # เพิ่มตรวจสอบค่าความชื้นสัมพัทธ์ (0-100)
+    - type: value_in_range
+      column: RH
+      min_value: 0
+      max_value: 100
+      on_fail: WARN

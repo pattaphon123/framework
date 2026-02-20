@@ -1,0 +1,17 @@
+{% if partition_values %}
+DELETE FROM {{ target_table }}
+WHERE {{ partition_columns[0] }} IN ({{ partition_values | join(', ') }});
+{% endif %}
+
+INSERT INTO {{ target_table }} (
+{%- for col in columns %}
+  {{ col }},
+{%- endfor %}
+  {{ partition_columns[0] }}
+)
+SELECT
+{%- for col in columns %}
+  {% if columns_data_types[col] == 'GEOGRAPHY' %}ST_GEOGFROM(source.{{ col }}){% else %}CAST(source.{{ col }} AS {{ columns_data_types[col] }}){% endif %},
+{%- endfor %}
+  CAST(source.{{ partition_columns[0] }} AS {{ columns_data_types[partition_columns[0]] }})
+FROM {{ source_table }} AS source;

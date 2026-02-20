@@ -1,0 +1,90 @@
+description: Ingest raw Air4Thai data into the discovery zone.
+source:
+  type: gcs
+  format: json
+  path: gs://${env.storage.raw_bucket}/air4thai_v3/{{ ds_nodash }}
+  options:
+    multiLine: true
+  transformations:
+  - type: explode
+    column: stations
+    alias: station
+  - type: explode
+    column: station.data
+    alias: measurement
+target:
+  catalog: ${env.biglake.catalog}
+  schema: discovery
+  table: air4thai
+  description: Raw Air4Thai air quality monitoring data ingested from JSON source files. All columns are stored as strings in the discovery zone.
+  location: gs://${env.storage.discovery_bucket}/air4thai
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+    description: Partition date for the data record
+  - name: load_timestamp
+    description: Timestamp when the record was loaded into the discovery zone
+  columns:
+  - name: stationID
+    source_column: station.stationID
+    type: string
+    description: Unique identifier for the air quality monitoring station
+  - name: DATETIMEDATA
+    source_column: measurement.DATETIMEDATA
+    type: string
+    description: Date and time of the measurement in string format
+  - name: PM25
+    source_column: measurement.PM25
+    type: string
+    description: Particulate matter 2.5 micrometers or smaller (raw string value)
+  - name: PM10
+    source_column: measurement.PM10
+    type: string
+    description: Particulate matter 10 micrometers or smaller (raw string value)
+  - name: O3
+    source_column: measurement.O3
+    type: string
+    description: Ozone concentration (raw string value)
+  - name: CO
+    source_column: measurement.CO
+    type: string
+    description: Carbon monoxide concentration (raw string value)
+  - name: NO2
+    source_column: measurement.NO2
+    type: string
+    description: Nitrogen dioxide concentration (raw string value)
+  - name: SO2
+    source_column: measurement.SO2
+    type: string
+    description: Sulfur dioxide concentration (raw string value)
+  - name: WS
+    source_column: measurement.WS
+    type: string
+    description: Wind speed (raw string value)
+  - name: WD
+    source_column: measurement.WD
+    type: string
+    description: Wind direction (raw string value)
+  - name: TEMP
+    source_column: measurement.TEMP
+    type: string
+    description: Temperature (raw string value)
+  - name: RH
+    source_column: measurement.RH
+    type: string
+    description: Relative humidity (raw string value)
+  - name: BP
+    source_column: measurement.BP
+    type: string
+    description: Barometric pressure (raw string value)
+  - name: RAIN
+    source_column: measurement.RAIN
+    type: string
+    description: Rainfall amount (raw string value)
+  quality_checks:
+  - type: not_null
+    column: DATETIMEDATA
+    on_fail: FAIL

@@ -1,0 +1,19 @@
+MERGE INTO {{ target_table }} AS target
+USING {{ source_table }} AS source
+ON FALSE
+WHEN NOT MATCHED THEN
+  INSERT (
+{%- for col in columns %}
+    {{ col }},
+{%- endfor %}
+    {{ partition_columns[0] }}
+  )
+  VALUES (
+{%- for col in columns %}
+    {% if columns_data_types[col] == 'GEOGRAPHY' %}ST_GEOGFROM(source.{{ col }}){% else %}CAST(source.{{ col }} AS {{ columns_data_types[col] }}){% endif %},
+{%- endfor %}
+    CAST('{{ data_date }}' AS {{ columns_data_types[partition_columns[0]] }})
+  )
+WHEN NOT MATCHED BY SOURCE AND target.{{ partition_columns[0] }} = CAST('{{ data_date }}' AS {{ columns_data_types[partition_columns[0]] }}) THEN
+  DELETE
+

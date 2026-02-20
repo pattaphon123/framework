@@ -1,0 +1,151 @@
+pipeline_name: usgs_earthquake
+schedule: 0 5 * * *
+description: Ingest USGS Earthquake data using GeoJSON format
+source:
+  type: gcs
+  format: geojson        
+  path: gs://${env.storage.raw_bucket}/usgs_earthquake/{{ ds_nodash }}
+  options:
+    multiLine: true
+
+target:
+  catalog: ${env.biglake.catalog}
+  schema: discovery
+  table: usgs_earthquake
+  description: Raw USGS earthquake data
+  location: gs://${env.storage.discovery_bucket}/usgs_earthquake
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+    description: Partition date
+  - name: load_timestamp
+    description: Load timestamp
+  columns:
+  - name: id
+    source_column: feature_id
+    type: string
+    description: Unique event identifier
+
+  - name: geometry
+    source_column: geometry
+    type: string                      
+    description: WKT Geometry
+
+  - name: mag
+    source_column: mag
+    type: string
+    description: Magnitude
+  - name: place
+    source_column: place
+    type: string
+    description: Location description
+  - name: time
+    source_column: time
+    type: string
+    description: Event time in epoch milliseconds
+  - name: updated
+    source_column: updated
+    type: string
+    description: Update time in epoch milliseconds
+  - name: tz
+    source_column: tz
+    type: string
+    description: Timezone offset
+  - name: url
+    source_column: url
+    type: string
+    description: USGS Event Page URL
+  - name: detail
+    source_column: detail
+    type: string
+    description: Link to GeoJSON detail feed
+
+  # --- Intensity & Impact ---
+  - name: felt
+    source_column: felt
+    type: string
+    description: Number of felt reports
+  - name: cdi
+    source_column: cdi
+    type: string
+    description: Community Internet Intensity Map (CIIM) intensity
+  - name: mmi
+    source_column: mmi
+    type: string
+    description: Modified Mercalli Intensity
+  - name: alert
+    source_column: alert
+    type: string
+    description: Alert level (green, yellow, orange, red)
+  - name: status
+    source_column: status
+    type: string
+    description: Event status (automatic/reviewed)
+  - name: tsunami
+    source_column: tsunami
+    type: string
+    description: Tsunami warning flag (0 or 1)
+  - name: sig
+    source_column: sig
+    type: string
+    description: Significance score
+
+  # --- System & Source Info ---
+  - name: net
+    source_column: net
+    type: string
+    description: ID of data contributor
+  - name: code
+    source_column: code
+    type: string
+    description: Identifying code
+  - name: ids
+    source_column: ids
+    type: string
+    description: List of event IDs associated with this event
+  - name: sources
+    source_column: sources
+    type: string
+    description: List of network codes
+  - name: types
+    source_column: types
+    type: string
+    description: List of product types
+
+  # --- Technical Parameters ---
+  - name: nst
+    source_column: nst
+    type: string
+    description: Number of stations used
+  - name: dmin
+    source_column: dmin
+    type: string
+    description: Horizontal distance to closest station
+  - name: rms
+    source_column: rms
+    type: string
+    description: Root Mean Square travel time residual
+  - name: gap
+    source_column: gap
+    type: string
+    description: Horizontal azimuthal gap
+  - name: magType
+    source_column: magType
+    type: string
+    description: Magnitude type (e.g., ml, md)
+  - name: type
+    source_column: type
+    type: string
+    description: Type of seismic event
+  - name: title
+    source_column: title
+    type: string
+    description: Descriptive title
+
+  quality_checks:
+  - type: not_null
+    column: id
+    on_fail: WARN

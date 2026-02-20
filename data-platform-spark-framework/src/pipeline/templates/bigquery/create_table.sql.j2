@@ -1,0 +1,21 @@
+CREATE SCHEMA IF NOT EXISTS `{{ project_id }}`.`{{ schema }}`{% if region %} OPTIONS(location="{{ region }}"){% endif %};
+
+CREATE TABLE IF NOT EXISTS `{{ project_id }}`.`{{ schema }}`.`{{ table }}`
+(
+{% for column in columns %}
+    {{ column.name | ljust(20) }} {{ column.type }}{% if column.description %} OPTIONS(description="{{ column.description }}"){% endif %}{% if not loop.last or technical_columns %},{% endif %}
+
+{% endfor %}
+{% if technical_columns %}
+{% for column in technical_columns %}
+    {{ column.name | ljust(20) }} {{ column.type }}{% if column.description %} OPTIONS(description="{{ column.description }}"){% endif %}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+{% endif %}
+)
+PARTITION BY {{ partition_columns[0] }}
+OPTIONS(
+  require_partition_filter=true{% if table_description %},
+  description="{{ table_description }}"{% endif %}
+);
+

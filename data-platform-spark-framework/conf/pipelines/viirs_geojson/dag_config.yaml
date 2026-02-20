@@ -1,0 +1,57 @@
+pipeline:
+  name: viirs_geojson
+  enabled: true
+  description: "VIIRS satellite fire detection data pipeline"
+  owner: data-team
+  tags:
+    - fire-detection
+    - satellite
+    - viirs
+
+schedule:
+  cron: "0 5 * * *"
+  start_date: "2024-01-01"
+  catchup: false
+  max_active_runs: 1
+
+dag_defaults:
+  retries: 2
+  retry_delay_minutes: 5
+  retry_exponential_backoff: true
+  max_retry_delay_minutes: 30
+  execution_timeout_hours: 2
+  depends_on_past: false
+  wait_for_downstream: false
+
+stages:
+  raw_to_discovery:
+    enabled: true
+    task_id: raw_to_discovery_batch
+    table: viirs_geojson
+    retries: 2
+    execution_timeout_hours: 1
+    dataproc_serverless:
+      batch_config:
+        spark.executor.instances: '2'
+        spark.executor.cores: '4'
+        spark.executor.memory: '8g'
+        spark.driver.cores: '2'
+        spark.driver.memory: '4g'
+  
+  discovery_to_standardized:
+    enabled: true
+    task_id: discovery_to_standardized_batch
+    table: viirs_geojson_bq
+    retries: 3
+    execution_timeout_hours: 1
+    dataproc_serverless:
+      batch_config:
+        spark.executor.instances: '3'
+        spark.executor.cores: '4'
+        spark.executor.memory: '12g'
+        spark.driver.cores: '2'
+        spark.driver.memory: '6g'
+
+conditional_logic:
+  skip_standardized_on_discovery_failure: true
+

@@ -1,0 +1,10 @@
+CREATE OR REPLACE TABLE {{ target_table }}
+PARTITION BY {{ partition_columns[0] }}
+AS
+SELECT
+{%- for col in columns %}
+    {% if columns_data_types[col] == 'GEOGRAPHY' %}ST_GEOGFROM({{ col }}){% else %}CAST({{ col }} AS {{ columns_data_types[col] }}){% endif %} AS {{ col }},
+{%- endfor %}
+    CAST('{{ data_date }}' AS {{ columns_data_types[partition_columns[0]] }}) AS {{ partition_columns[0] }}
+FROM {{ source_table }}
+

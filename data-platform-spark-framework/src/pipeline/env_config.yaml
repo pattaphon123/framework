@@ -1,0 +1,10 @@
+gcp:
+  project_id: envilink-stg-data-platform
+  region: asia-southeast1
+storage:
+  raw_bucket: envilink-asia-southeast1-stg-raw
+  config_bucket: envilink-asia-southeast1-stg-config
+  discovery_bucket: envilink-asia-southeast1-stg-discovery
+  standardized_bucket: envilink-asia-southeast1-stg-standardized
+biglake:
+  catalog: biglake

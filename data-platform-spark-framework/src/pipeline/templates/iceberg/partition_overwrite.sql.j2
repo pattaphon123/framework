@@ -1,0 +1,8 @@
+INSERT OVERWRITE {{ target_table }}
+{%- if partition_columns %}
+PARTITION ({{ partition_columns[0] }} = '{{ data_date }}')
+{% endif %}
+SELECT
+    {{ columns | join(',\n    ') }}
+FROM {{ source_table }}
+

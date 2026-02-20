@@ -1,0 +1,73 @@
+description: 'Cleanse and standardize customer data.'
+
+source:
+  catalog: '${env.biglake.catalog}'
+  schema: 'discovery'
+  table: 'customers'
+target:
+  catalog: '${env.gcp.project_id}'
+  schema: 'standardized'
+  table: 'customers'
+  table_type: 'bigquery'
+  load_type: 'merge'
+  merge_keys:
+    - 'customer_id'
+  partition_columns:
+    - 'data_date'
+  technical_columns:
+    - name: 'data_date'
+      bigquery_type: 'DATE'
+    - name: 'load_timestamp'
+      bigquery_type: 'TIMESTAMP'
+  columns:
+    - name: 'customer_id'
+      source_column: 'cust_id'
+      type: 'integer'
+      bigquery_type: 'INT64'
+    - name: 'first_name'
+      source_column: 'f_name'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'last_name'
+      source_column: 'l_name'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'trim'
+    - name: 'email'
+      source_column: 'email_addr'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'lower'
+        - type: 'trim'
+    - name: 'registration_date'
+      type: 'date'
+      bigquery_type: 'DATE'
+      transformations:
+        - type: 'to_date'
+          format: 'yyyy-MM-dd HH:mm:ss'
+    - name: 'source_system'
+      type: 'string'
+      bigquery_type: 'STRING'
+      transformations:
+        - type: 'static_value'
+          value: 'SystemA'
+  quality_checks:
+    - type: 'min'
+      column: 'customer_id'
+      value: 1
+      on_fail: 'FAIL'
+    - type: 'regexp_match'
+      column: 'email'
+      pattern: '^[^@]+@[^@]+\\.[^@]+$'
+      on_fail: 'WARN'
+    - type: 'value_in'
+      column: 'source_system'
+      values:
+        - 'SystemA'
+        - 'SystemB'
+      on_fail: 'WARN'
+

@@ -1,0 +1,351 @@
+source:
+  type: gcs
+  format: json
+  path: gs://${env.storage.raw_bucket}/dpm/dpmalert/{{ ds_nodash }}
+  options:
+    multiLine: true
+  transformations:
+  - type: explode
+    column: items
+    alias: item
+  - type: explode
+    column: item.station.stationDevice
+    alias: stationDevice
+target:
+  catalog: ${env.biglake.catalog}
+  schema: discovery__dpm
+  table: dpmalert
+  location: gs://${env.storage.discovery_bucket}/dpm/dpmalert
+  table_type: iceberg
+  load_type: partition_overwrite
+  partition_columns:
+  - data_date
+  technical_columns:
+  - name: data_date
+  - name: load_timestamp
+  columns:
+  - name: airQualityDataHourly_temperature
+    source_column: item.airQualityDataHourly.temperature
+    type: string
+  - name: airQualityDataHourly_dewPoint
+    source_column: item.airQualityDataHourly.dewPoint
+    type: string
+  - name: airQualityDataHourly_nO2
+    source_column: item.airQualityDataHourly.nO2
+    type: string
+  - name: airQualityDataHourly_ox
+    source_column: item.airQualityDataHourly.ox
+    type: string
+  - name: airQualityDataHourly_o3
+    source_column: item.airQualityDataHourly.o3
+    type: string
+  - name: airQualityDataHourly_relativeHumidity
+    source_column: item.airQualityDataHourly.relativeHumidity
+    type: string
+  - name: airQualityDataHourly_pM1
+    source_column: item.airQualityDataHourly.pM1
+    type: string
+  - name: airQualityDataHourly_pM25
+    source_column: item.airQualityDataHourly.pM25
+    type: string
+  - name: airQualityDataHourly_pM10
+    source_column: item.airQualityDataHourly.pM10
+    type: string
+  - name: airQualityDataHourly_tsp
+    source_column: item.airQualityDataHourly.tsp
+    type: string
+  - name: airQualityDataHourly_time
+    source_column: item.airQualityDataHourly.time
+    type: string
+  - name: airQualityDataHourly_stationId
+    source_column: item.airQualityDataHourly.stationId
+    type: string
+  - name: airQualityDataHourly_id
+    source_column: item.airQualityDataHourly.id
+    type: string
+  - name: station_name
+    source_column: item.station.name
+    type: string
+  - name: station_location
+    source_column: item.station.location
+    type: string
+  - name: station_latitude
+    source_column: item.station.latitude
+    type: string
+  - name: station_longitude
+    source_column: item.station.longitude
+    type: string
+  - name: station_contactName
+    source_column: item.station.contactName
+    type: string
+  - name: station_contactPhone
+    source_column: item.station.contactPhone
+    type: string
+  - name: station_simCardNumber
+    source_column: item.station.simCardNumber
+    type: string
+  - name: station_installationEngineer
+    source_column: item.station.installationEngineer
+    type: string
+  - name: station_installationDate
+    source_column: item.station.installationDate
+    type: string
+  - name: station_siteAddress
+    source_column: item.station.siteAddress
+    type: string
+  - name: station_loggerNetReference
+    source_column: item.station.loggerNetReference
+    type: string
+  - name: station_image
+    source_column: item.station.image
+    type: string
+  - name: station_updateBy
+    source_column: item.station.updateBy
+    type: string
+  - name: station_updateTime
+    source_column: item.station.updateTime
+    type: string
+  - name: station_provinceId
+    source_column: item.station.provinceId
+    type: string
+  - name: station_amphoeId
+    source_column: item.station.amphoeId
+    type: string
+  - name: station_tambonId
+    source_column: item.station.tambonId
+    type: string
+  - name: station_code
+    source_column: item.station.code
+    type: string
+  - name: station_displayName
+    source_column: item.station.displayName
+    type: string
+  - name: station_remark
+    source_column: item.station.remark
+    type: string
+  - name: station_amphoe
+    source_column: item.station.amphoe
+    type: string
+  - name: station_tambon
+    source_column: item.station.tambon
+    type: string
+  - name: station_isDeleted
+    source_column: item.station.isDeleted
+    type: string
+  - name: station_deleterId
+    source_column: item.station.deleterId
+    type: string
+  - name: station_deletionTime
+    source_column: item.station.deletionTime
+    type: string
+  - name: station_lastModificationTime
+    source_column: item.station.lastModificationTime
+    type: string
+  - name: station_lastModifierId
+    source_column: item.station.lastModifierId
+    type: string
+  - name: station_creationTime
+    source_column: item.station.creationTime
+    type: string
+  - name: station_creatorId
+    source_column: item.station.creatorId
+    type: string
+  - name: station_id
+    source_column: item.station.id
+    type: string
+  - name: station_province_name
+    source_column: item.station.province.name
+    type: string
+  - name: station_province_geoCode
+    source_column: item.station.province.geoCode
+    type: string
+  - name: station_province_region
+    source_column: item.station.province.region
+    type: string
+  - name: station_province_regionId
+    source_column: item.station.province.regionId
+    type: string
+  - name: station_province_latitude
+    source_column: item.station.province.latitude
+    type: string
+  - name: station_province_longitude
+    source_column: item.station.province.longitude
+    type: string
+  - name: station_province_nameEN
+    source_column: item.station.province.nameEN
+    type: string
+  - name: station_province_isDeleted
+    source_column: item.station.province.isDeleted
+    type: string
+  - name: station_province_deleterId
+    source_column: item.station.province.deleterId
+    type: string
+  - name: station_province_deletionTime
+    source_column: item.station.province.deletionTime
+    type: string
+  - name: station_province_lastModificationTime
+    source_column: item.station.province.lastModificationTime
+    type: string
+  - name: station_province_lastModifierId
+    source_column: item.station.province.lastModifierId
+    type: string
+  - name: station_province_creationTime
+    source_column: item.station.province.creationTime
+    type: string
+  - name: station_province_creatorId
+    source_column: item.station.province.creatorId
+    type: string
+  - name: station_province_id
+    source_column: item.station.province.id
+    type: string
+  - name: stationDevice_name
+    source_column: stationDevice.name
+    type: string
+  - name: stationDevice_serialNumber
+    source_column: stationDevice.serialNumber
+    type: string
+  - name: stationDevice_sensorType
+    source_column: stationDevice.sensorType
+    type: string
+  - name: stationDevice_stationId
+    source_column: stationDevice.stationId
+    type: string
+  - name: stationDevice_simCardNumber
+    source_column: stationDevice.simCardNumber
+    type: string
+  - name: stationDevice_installationEngineer
+    source_column: stationDevice.installationEngineer
+    type: string
+  - name: stationDevice_installationDate
+    source_column: stationDevice.installationDate
+    type: string
+  - name: stationDevice_active
+    source_column: stationDevice.active
+    type: string
+  - name: stationDevice_isDeleted
+    source_column: stationDevice.isDeleted
+    type: string
+  - name: stationDevice_deleterId
+    source_column: stationDevice.deleterId
+    type: string
+  - name: stationDevice_deletionTime
+    source_column: stationDevice.deletionTime
+    type: string
+  - name: stationDevice_lastModificationTime
+    source_column: stationDevice.lastModificationTime
+    type: string
+  - name: stationDevice_lastModifierId
+    source_column: stationDevice.lastModifierId
+    type: string
+  - name: stationDevice_creationTime
+    source_column: stationDevice.creationTime
+    type: string
+  - name: stationDevice_creatorId
+    source_column: stationDevice.creatorId
+    type: string
+  - name: stationDevice_id
+    source_column: stationDevice.id
+    type: string
+  - name: itemStationDevice_name
+    source_column: item.stationDevice.name
+    type: string
+  - name: itemStationDevice_serialNumber
+    source_column: item.stationDevice.serialNumber
+    type: string
+  - name: itemStationDevice_sensorType
+    source_column: item.stationDevice.sensorType
+    type: string
+  - name: itemStationDevice_stationId
+    source_column: item.stationDevice.stationId
+    type: string
+  - name: itemStationDevice_simCardNumber
+    source_column: item.stationDevice.simCardNumber
+    type: string
+  - name: itemStationDevice_installationEngineer
+    source_column: item.stationDevice.installationEngineer
+    type: string
+  - name: itemStationDevice_installationDate
+    source_column: item.stationDevice.installationDate
+    type: string
+  - name: itemStationDevice_active
+    source_column: item.stationDevice.active
+    type: string
+  - name: itemStationDevice_isDeleted
+    source_column: item.stationDevice.isDeleted
+    type: string
+  - name: itemStationDevice_deleterId
+    source_column: item.stationDevice.deleterId
+    type: string
+  - name: itemStationDevice_deletionTime
+    source_column: item.stationDevice.deletionTime
+    type: string
+  - name: itemStationDevice_lastModificationTime
+    source_column: item.stationDevice.lastModificationTime
+    type: string
+  - name: itemStationDevice_lastModifierId
+    source_column: item.stationDevice.lastModifierId
+    type: string
+  - name: itemStationDevice_creationTime
+    source_column: item.stationDevice.creationTime
+    type: string
+  - name: itemStationDevice_creatorId
+    source_column: item.stationDevice.creatorId
+    type: string
+  - name: itemStationDevice_id
+    source_column: item.stationDevice.id
+    type: string
+  - name: province_name
+    source_column: item.province.name
+    type: string
+  - name: province_geoCode
+    source_column: item.province.geoCode
+    type: string
+  - name: province_region
+    source_column: item.province.region
+    type: string
+  - name: province_regionId
+    source_column: item.province.regionId
+    type: string
+  - name: province_latitude
+    source_column: item.province.latitude
+    type: string
+  - name: province_longitude
+    source_column: item.province.longitude
+    type: string
+  - name: province_nameEN
+    source_column: item.province.nameEN
+    type: string
+  - name: province_isDeleted
+    source_column: item.province.isDeleted
+    type: string
+  - name: province_deleterId
+    source_column: item.province.deleterId
+    type: string
+  - name: province_deletionTime
+    source_column: item.province.deletionTime
+    type: string
+  - name: province_lastModificationTime
+    source_column: item.province.lastModificationTime
+    type: string
+  - name: province_lastModifierId
+    source_column: item.province.lastModifierId
+    type: string
+  - name: province_creationTime
+    source_column: item.province.creationTime
+    type: string
+  - name: province_creatorId
+    source_column: item.province.creatorId
+    type: string
+  - name: province_id
+    source_column: item.province.id
+    type: string
+  - name: stationFullname
+    source_column: item.stationFullname
+    type: string
+  quality_checks:
+  - type: not_null
+    column: station_id
+    on_fail: FAIL
+  - type: not_null
+    column: airQualityDataHourly_id
+    on_fail: WARN
